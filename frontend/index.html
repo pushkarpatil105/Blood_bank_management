@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Blood Bank Management System — ADA Mini Project. Manage donors, blood inventory, and requests efficiently using data structures.">
+    <title>Blood Bank Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SIDEBAR
+     ══════════════════════════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon">🩸</div>
+        <div>
+            <div class="brand-text">BloodBank</div>
+            <div class="brand-sub">Management System</div>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <button class="nav-item active" data-section="dashboard" id="nav-dashboard">
+            <span class="nav-icon">📊</span> Dashboard
+        </button>
+        <button class="nav-item" data-section="add-donor" id="nav-add-donor">
+            <span class="nav-icon">➕</span> Add Donor
+        </button>
+        <button class="nav-item" data-section="donor-queue" id="nav-donor-queue">
+            <span class="nav-icon">🔄</span> Donor Queue
+        </button>
+
+        <div class="nav-divider"></div>
+
+        <button class="nav-item" data-section="blood-requests" id="nav-blood-requests">
+            <span class="nav-icon">📋</span> Blood Requests
+        </button>
+        <button class="nav-item" data-section="match-donor" id="nav-match-donor">
+            <span class="nav-icon">🔍</span> Match Donor
+        </button>
+
+        <div class="nav-divider"></div>
+
+        <button class="nav-item" data-section="report" id="nav-report">
+            <span class="nav-icon">📈</span> Report
+        </button>
+        <button class="nav-item" data-section="backup-restore" id="nav-backup-restore">
+            <span class="nav-icon">💾</span> Backup & Restore
+        </button>
+    </nav>
+</aside>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MAIN CONTENT
+     ══════════════════════════════════════════════════════════════ -->
+<main class="main-content">
+
+    <!-- Header -->
+    <header class="header">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <button class="mobile-toggle" id="mobile-toggle">☰</button>
+            <h1 class="header-title" id="header-title">Dashboard</h1>
+        </div>
+        <div class="header-actions">
+            <span class="header-badge">
+                <span class="pulse-dot"></span> System Active
+            </span>
+        </div>
+    </header>
+
+    <div class="page-container">
+
+        <!-- ═══════════════════════════════════════════════════
+             1. DASHBOARD
+             ═══════════════════════════════════════════════════ -->
+        <div class="section active" id="section-dashboard">
+            <div class="section-header">
+                <div>
+                    <h2>Blood Availability Overview</h2>
+                    <p>Real-time inventory status and alerts</p>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stats-grid" id="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon red">🩸</div>
+                    <div class="stat-info">
+                        <h4>Total Stock</h4>
+                        <div class="stat-value" id="stat-total-stock">--</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">👤</div>
+                    <div class="stat-info">
+                        <h4>Donors in Queue</h4>
+                        <div class="stat-value" id="stat-donors-queue">--</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">📋</div>
+                    <div class="stat-info">
+                        <h4>Pending Requests</h4>
+                        <div class="stat-value" id="stat-pending">--</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon amber">⚠️</div>
+                    <div class="stat-info">
+                        <h4>Low Stock Alerts</h4>
+                        <div class="stat-value" id="stat-low-stock">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blood Group Grid -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Blood Group Inventory</h3>
+                </div>
+                <div class="card-body">
+                    <div class="blood-grid" id="blood-grid">
+                        <!-- JS populates -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+             2. ADD DONOR
+             ═══════════════════════════════════════════════════ -->
+        <div class="section" id="section-add-donor">
+            <div class="section-header">
+                <div>
+                    <h2>Register New Donor</h2>
+                    <p>Add a donor to the FIFO queue (collections.deque)</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form id="donor-form" autocomplete="off">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="donor-name">Full Name</label>
+                                <input type="text" id="donor-name" placeholder="Enter donor name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="donor-age">Age</label>
+                                <input type="number" id="donor-age" placeholder="18–65" min="18" max="65" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="donor-blood-group">Blood Group</label>
+                                <select id="donor-blood-group" required>
+                                    <option value="">Select blood group</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="donor-contact">Contact Number</label>
+                                <input type="text" id="donor-contact" placeholder="Phone number" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="donor-date">Last Donation Date</label>
+                                <input type="date" id="donor-date">
+                            </div>
+                        </div>
+                        <div class="mt-24">
+                            <button type="submit" class="btn btn-primary btn-lg" id="btn-add-donor">
+                                ➕ Add Donor to Queue
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+             3. DONOR QUEUE
+             ═══════════════════════════════════════════════════ -->
+        <div class="section" id="section-donor-queue">
+            <div class="section-header">
+                <div>
+                    <h2>Donor Queue</h2>
+                    <p>FIFO queue — process the next donor in line</p>
+                </div>
+                <button class="btn btn-success" id="btn-process-donor">
+                    🔄 Process Next Donor
+                </button>
+            </div>
+
+            <!-- Queue Visual -->
+            <div class="card mb-24">
+                <div class="card-header">
+                    <h3>Queue Visualization (Front → Rear)</h3>
+                    <span class="badge badge-blood" id="queue-count-badge">0 donors</span>
+                </div>
+                <div class="card-body">
+                    <div class="queue-visual" id="queue-visual">
+                        <div class="empty-state">
+                            <div class="empty-icon">📭</div>
+                            <p>Queue is empty</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>All Registered Donors</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-wrapper">
+                        <table id="donors-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Age</th>
+                                    <th>Blood Group</th>
+                                    <th>Contact</th>
+                                    <th>Last Donation</th>
+                                </tr>
+                            </thead>
+                            <tbody id="donors-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+             4. BLOOD REQUESTS
+             ═══════════════════════════════════════════════════ -->
+        <div class="section" id="section-blood-requests">
+            <div class="section-header">
+                <div>
+                    <h2>Blood Requests</h2>
+                    <p>Linked List — each node stores one blood request</p>
+                </div>
+            </div>
+
+            <!-- Add Request Form -->
+            <div class="card mb-24">
+                <div class="card-header">
+                    <h3>New Blood Request</h3>
+                </div>
+                <div class="card-body">
+                    <form id="request-form" autocomplete="off">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="req-patient">Patient Name</label>
+                                <input type="text" id="req-patient" placeholder="Enter patient name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="req-blood-group">Blood Group Needed</label>
+                                <select id="req-blood-group" required>
+                                    <option value="">Select blood group</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="req-quantity">Quantity (units)</label>
+                                <input type="number" id="req-quantity" placeholder="Units needed" min="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="req-hospital">Hospital Name</label>
+                                <input type="text" id="req-hospital" placeholder="Enter hospital name" required>
+                            </div>
+                        </div>
+                        <div class="mt-24">
+                            <button type="submit" class="btn btn-primary btn-lg" id="btn-add-request">
+                                📋 Submit Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Requests Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>All Blood Requests</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-wrapper">
+                        <table id="requests-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Patient</th>
+                                    <th>Blood Group</th>
+                                    <th>Qty</th>
+                                    <th>Hospital</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="requests-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+             5. MATCH DONOR
+             ═══════════════════════════════════════════════════ -->
+        <div class="section" id="section-match-donor">
+            <div class="section-header">
+                <div>
+                    <h2>Match Donor</h2>
+                    <p>Check blood group compatibility and available units</p>
+                </div>
+            </div>
+
+            <div class="card mb-24">
+                <div class="card-body">
+                    <div class="match-input-row">
+                        <div class="form-group">
+                            <label for="match-blood-group">Recipient Blood Group</label>
+                            <select id="match-blood-group">
+                                <option value="">Select blood group</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" id="btn-match" type="button">
+                            🔍 Find Compatible Donors
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="match-results" id="match-results">
+                <!-- JS populates -->
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+             6. REPORT
+             ═══════════════════════════════════════════════════ -->
+        <div class="section" id="section-report">
+            <div class="section-header">
+                <div>
+                    <h2>System Report</h2>
+                    <p>Full statistics and analytics overview</p>
+                </div>
+                <button class="btn btn-secondary" id="btn-refresh-report" type="button">
+                    🔄 Refresh
+                </button>
+            </div>
+
+            <div class="stats-grid mb-24" id="report-stats">
+                <!-- JS populates -->
+            </div>
+
+            <div class="report-grid" id="report-details">
+                <!-- JS populates -->
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+             7. BACKUP & RESTORE
+             ═══════════════════════════════════════════════════ -->
+        <div class="section" id="section-backup-restore">
+            <div class="section-header">
+                <div>
+                    <h2>Backup & Restore</h2>
+                    <p>Manage your data safely</p>
+                </div>
+            </div>
+
+            <div class="backup-actions">
+                <div class="backup-card">
+                    <div class="backup-icon" style="background:var(--success-light);color:var(--success);">💾</div>
+                    <h3>Create Backup</h3>
+                    <p>Save a copy of all donors, inventory, and request data to the backup folder.</p>
+                    <button class="btn btn-success btn-lg" id="btn-backup" type="button">
+                        💾 Backup Now
+                    </button>
+                </div>
+                <div class="backup-card">
+                    <div class="backup-icon" style="background:var(--warning-light);color:var(--warning);">📥</div>
+                    <h3>Restore Data</h3>
+                    <p>Restore all data from the most recent backup. This will overwrite current data.</p>
+                    <button class="btn btn-warning btn-lg" id="btn-restore" type="button">
+                        📥 Restore Now
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /.page-container -->
+</main>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
